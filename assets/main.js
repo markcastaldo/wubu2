@@ -232,7 +232,8 @@
     const cv = wrap.querySelector(".logo-ascii");
     const c2 = cv.getContext("2d");
     const RAMP_L = "@#%&$*+=~-:"; // shadow -> highlight, all visible
-    let grid = [], cw = 6, chH = 9;
+    let grid = [], cw = 6, chH = 9, lens = null, lensQueued = false;
+    const LENS_R = 90;
 
     const build = () => {
       const w = wrap.clientWidth, h = wrap.clientHeight;
@@ -271,6 +272,18 @@
         c2.fillStyle = band >= 0 ? WAVE_INK[band] : r < 0.035 ? CM[(r * 1000 | 0) % 3] : "#000";
         c2.fillText(band >= 0 ? "@" : RAMP_L[li], g.x * cw, g.y * chH);
       }
+      // lens: punch a circle out of the ASCII and draw the chrome logo inside it.
+      // Drawn on the canvas (not a CSS mask) so it renders the same in every browser.
+      if (lens) {
+        const w = wrap.clientWidth, h = wrap.clientHeight;
+        c2.save();
+        c2.beginPath();
+        c2.arc(lens.x, lens.y, LENS_R, 0, Math.PI * 2);
+        c2.clip();
+        c2.clearRect(0, 0, w, h);
+        c2.drawImage(img, 0, 0, w, h);
+        c2.restore();
+      }
     };
     paintLogo = paint;
     const ready = () => { build(); if (!reduce) setInterval(() => waves.length || paint(), 140); };
@@ -279,15 +292,23 @@
     addEventListener("resize", () => img.naturalWidth && build());
 
     // hover: a lens that shows the real chrome logo under the cursor
+    const repaintSoon = () => {
+      if (lensQueued) return;
+      lensQueued = true;
+      requestAnimationFrame(() => { lensQueued = false; paint(); });
+    };
     wrap.addEventListener("pointermove", (e) => {
       const b = wrap.getBoundingClientRect();
-      wrap.style.setProperty("--lx", `${e.clientX - b.left}px`);
-      wrap.style.setProperty("--ly", `${e.clientY - b.top}px`);
-      wrap.classList.add("lens");
+      lens = { x: e.clientX - b.left, y: e.clientY - b.top };
+      repaintSoon();
     });
-    wrap.addEventListener("pointerleave", () => wrap.classList.remove("lens"));
+    wrap.addEventListener("pointerleave", () => { lens = null; repaintSoon(); });
     // click / tap: send a CMYK wave out across the page
     wrap.addEventListener("pointerdown", (e) => {
+      const b = wrap.getBoundingClientRect();
+      lens = { x: e.clientX - b.left, y: e.clientY - b.top };
+      repaintSoon();
+      if (e.pointerType !== "mouse") setTimeout(() => { lens = null; repaintSoon(); }, 900);
       if (reduce) return;
       if (waves.length > 4) waves.shift();
       waves.push({ x: e.clientX, y: e.clientY, t0: performance.now() });

@@ -333,7 +333,6 @@ footer.socials a:hover:nth-child(3n+3) { color: var(--fg); background: var(--y);
   aspect-ratio: 1000 / 832;
   margin: 0 auto 22px;
   cursor: pointer;
-  --lx: -999px; --ly: -999px; --lr: 90px;
 }
 .logo-wrap .logo-img,
 .logo-wrap .logo-ascii {
@@ -343,18 +342,7 @@ footer.socials a:hover:nth-child(3n+3) { color: var(--fg); background: var(--y);
   height: 100%;
   transition: opacity .35s;
 }
-.logo-wrap .logo-img { opacity: 0; }
-.logo-wrap.lens .logo-img {
-  opacity: 1;
-  -webkit-mask-image: radial-gradient(circle var(--lr) at var(--lx) var(--ly), #000 96%, transparent 100%);
-          mask-image: radial-gradient(circle var(--lr) at var(--lx) var(--ly), #000 96%, transparent 100%);
-}
-.logo-wrap.lens .logo-ascii {
-  -webkit-mask-image: radial-gradient(circle var(--lr) at var(--lx) var(--ly), transparent 96%, #000 100%);
-          mask-image: radial-gradient(circle var(--lr) at var(--lx) var(--ly), transparent 96%, #000 100%);
-}
-.logo-wrap.chrome .logo-img { opacity: 1; -webkit-mask-image: none; mask-image: none; }
-.logo-wrap.chrome .logo-ascii { opacity: 0; }
+.logo-wrap .logo-img { opacity: 0; } /* source for the canvas; the lens is drawn in JS */
 
 /* ---------- boot screen ---------- */
 html.booting body { overflow: hidden; }
