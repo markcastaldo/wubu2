@@ -45,13 +45,39 @@
     ty = Math.max(-1, Math.min(1, (e.beta - 45) / 30));
   });
 
+  // ---------- CMYK click waves (launched from the logo) ----------
+  // Each wave is a ring in screen px: cyan front, then magenta, yellow, black.
+  const WAVE_SPEED = 950, BAND = 22, WAVE_INK = ["#00aeef", "#ec008c", "#f5c400", "#000"];
+  const waves = [];
+  const maxR = () => Math.hypot(innerWidth, innerHeight) + BAND * 4;
+  // returns 0..3 (which ink band a point sits in) or -1
+  const waveBand = (cx, cy, now) => {
+    for (let k = waves.length - 1; k >= 0; k--) {
+      const wv = waves[k];
+      const r = (now - wv.t0) / 1000 * WAVE_SPEED;
+      const behind = r - Math.hypot(cx - wv.x, cy - wv.y);
+      if (behind >= 0 && behind < BAND * 4) return (behind / BAND) | 0;
+    }
+    return -1;
+  };
+
   function draw(t) {
     const w = canvas.clientWidth, h = canvas.clientHeight;
     ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, w, h);
     const lx = (px - mx * 28) / CELL, ly = (py - my * 28) / CELL;
+    const now = t * 1000, ox = -40 - mx * 28, oy = -40 - my * 28;
+    const hasWaves = waves.length > 0;
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
+        if (hasWaves) {
+          const band = waveBand(x * CELL + ox, y * CELL + oy, now);
+          if (band >= 0) {
+            ctx.fillStyle = WAVE_INK[band];
+            ctx.fillText(band === 3 ? "#" : "@%&$"[(x * 7 + y * 3) % 4], x * CELL, y * CELL);
+            continue;
+          }
+        }
         let v = (n(x, y, t) + 2) / 4; // ~0..1
         const d = Math.hypot(x - lx, y - ly);
         const glow = d < 9 ? 1 - d / 9 : 0;
@@ -83,13 +109,19 @@
     canvas.style.transform = `translate3d(${-mx * 28}px, ${-my * 28}px, 0)`;
     if (hud) hud.style.transform = `translate3d(${-mx * 10}px, ${-my * 10}px, 0)`;
     if (ui) ui.style.transform = `translate3d(${mx * 10}px, ${my * 10}px, 0)`;
-    if (now - last > 66) { // ~15fps for the field keeps CPU low
+    // drop finished waves
+    for (let k = waves.length - 1; k >= 0; k--)
+      if ((now - waves[k].t0) / 1000 * WAVE_SPEED > maxR()) waves.splice(k, 1);
+    // ~15fps normally keeps CPU low; ~30fps while a wave is moving so it looks smooth
+    if (now - last > (waves.length ? 33 : 66)) {
       draw(now / 1000);
+      if (waves.length && paintLogo) paintLogo(now);
       last = now;
     }
     requestAnimationFrame(frame);
   }
 
+  let paintLogo = null;
   size();
   addEventListener("resize", size);
   if (reduce) draw(0);
@@ -224,7 +256,9 @@
       }
       paint();
     };
-    const paint = () => {
+    const paint = (now) => {
+      const b = waves.length ? wrap.getBoundingClientRect() : null;
+      now = now || performance.now();
       c2.clearRect(0, 0, cv.width, cv.height);
       c2.font = `700 ${Math.round(chH * 0.95)}px "JetBrains Mono", monospace`;
       c2.textBaseline = "top";
@@ -233,11 +267,13 @@
         let li = Math.min(RAMP_L.length - 1, (g.lum * RAMP_L.length) | 0);
         if (!reduce && Math.random() < 0.04) li = (Math.random() * (RAMP_L.length - 1)) | 0;
         const r = Math.random();
-        c2.fillStyle = r < 0.035 ? CM[(r * 1000 | 0) % 3] : "#000";
-        c2.fillText(RAMP_L[li], g.x * cw, g.y * chH);
+        const band = b ? waveBand(b.left + g.x * cw, b.top + g.y * chH, now) : -1;
+        c2.fillStyle = band >= 0 ? WAVE_INK[band] : r < 0.035 ? CM[(r * 1000 | 0) % 3] : "#000";
+        c2.fillText(band >= 0 ? "@" : RAMP_L[li], g.x * cw, g.y * chH);
       }
     };
-    const ready = () => { build(); if (!reduce) setInterval(paint, 140); };
+    paintLogo = paint;
+    const ready = () => { build(); if (!reduce) setInterval(() => waves.length || paint(), 140); };
     if (img.complete && img.naturalWidth) ready();
     else img.addEventListener("load", ready);
     addEventListener("resize", () => img.naturalWidth && build());
@@ -250,8 +286,12 @@
       wrap.classList.add("lens");
     });
     wrap.addEventListener("pointerleave", () => wrap.classList.remove("lens"));
-    // touch screens: tap flips between ASCII and chrome
-    wrap.addEventListener("click", () => wrap.classList.toggle("chrome"));
+    // click / tap: send a CMYK wave out across the page
+    wrap.addEventListener("pointerdown", (e) => {
+      if (reduce) return;
+      if (waves.length > 4) waves.shift();
+      waves.push({ x: e.clientX, y: e.clientY, t0: performance.now() });
+    });
   }
 
   // ---------- newsletter (optional) ----------
