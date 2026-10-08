@@ -1,17 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 200" role="img" aria-label="Striped McCoy">
-  <!-- PLACEHOLDER LOGO: replace this file with the real logo (PNG/SVG), keep the name logo.svg or update the <img> src -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 140" role="img" aria-label="wubu2">
+  <!-- PLACEHOLDER LOGO: replace this file with the real logo (PNG/SVG), or update the <img> src in index.html -->
   <style>
-    text { font-family: "Courier New", monospace; font-weight: 700; font-size: 64px; letter-spacing: 4px; }
+    text { font-family: "Courier New", monospace; font-weight: 700; font-size: 96px; letter-spacing: 6px; }
     .ln { stroke: #00000060; stroke-width: 1; stroke-dasharray: 2 4; }
   </style>
   <line class="ln" x1="10" y1="12" x2="410" y2="12"/>
-  <line class="ln" x1="10" y1="188" x2="410" y2="188"/>
+  <line class="ln" x1="10" y1="128" x2="410" y2="128"/>
   <g style="mix-blend-mode:multiply">
-    <text x="213" y="86" text-anchor="middle" fill="#00aeef">STRIPED</text>
-    <text x="207" y="83" text-anchor="middle" fill="#ec008c">STRIPED</text>
-    <text x="210" y="84" text-anchor="middle" fill="#000000">STRIPED</text>
-    <text x="213" y="160" text-anchor="middle" fill="#ffe600">McCOY</text>
-    <text x="207" y="157" text-anchor="middle" fill="#00aeef">McCOY</text>
-    <text x="210" y="158" text-anchor="middle" fill="#000000">McCOY</text>
+    <text x="215" y="102" text-anchor="middle" fill="#00aeef">WUBU2</text>
+    <text x="205" y="98" text-anchor="middle" fill="#ec008c">WUBU2</text>
+    <text x="210" y="100" text-anchor="middle" fill="#000000">WUBU2</text>
   </g>
 </svg>

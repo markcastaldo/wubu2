@@ -316,3 +316,12 @@ footer.socials a:hover:nth-child(3n+3) { color: var(--fg); background: var(--y);
   transition: filter .3s;
 }
 .embed:hover { filter: none; }
+
+.portrait {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  margin: 0 auto 20px;
+  border: 1px solid var(--fg);
+}

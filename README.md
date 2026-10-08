@@ -1,10 +1,10 @@
-# Striped McCoy site
+# wubu2 site
 
 Plain static site (no build step) hosted on GitHub Pages.
 
 - `index.html`: landing page, logo, stream links, Spotify player
 - `free.html`: free packs index + optional newsletter
-- `about.html`: bio + discography
+- `about.html`: bio
 - `assets/style.css`: colours live at the top (`--c`, `--m`, `--y`)
 - `assets/main.js`: ASCII background + mouse parallax
 
