@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 200" role="img" aria-label="Striped McCoy">
+  <!-- PLACEHOLDER LOGO: replace this file with the real logo (PNG/SVG), keep the name logo.svg or update the <img> src -->
+  <style>
+    text { font-family: "Courier New", monospace; font-weight: 700; font-size: 64px; letter-spacing: 4px; }
+    .ln { stroke: #6b6b6b; stroke-width: 1; stroke-dasharray: 2 4; }
+  </style>
+  <line class="ln" x1="10" y1="12" x2="410" y2="12"/>
+  <line class="ln" x1="10" y1="188" x2="410" y2="188"/>
+  <g style="mix-blend-mode:screen">
+    <text x="213" y="86" text-anchor="middle" fill="#00e5ff">STRIPED</text>
+    <text x="207" y="83" text-anchor="middle" fill="#ff1f8f">STRIPED</text>
+    <text x="210" y="84" text-anchor="middle" fill="#e8e8e8">STRIPED</text>
+    <text x="213" y="160" text-anchor="middle" fill="#ffe600">McCOY</text>
+    <text x="207" y="157" text-anchor="middle" fill="#00e5ff">McCOY</text>
+    <text x="210" y="158" text-anchor="middle" fill="#e8e8e8">McCOY</text>
+  </g>
+</svg>
