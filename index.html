@@ -12,8 +12,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Doto:wght@800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=4">
-  <link rel="icon" href="assets/logo.svg?v=4">
+  <link rel="stylesheet" href="assets/style.css?v=6">
+  <link rel="icon" href="assets/icon.png">
+  <script>try{if(!sessionStorage.getItem("wubu2-booted")&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("booting")}catch(e){}</script>
 </head>
 <body>
   <canvas id="field" aria-hidden="true"></canvas>
@@ -34,8 +35,11 @@
 
     <main>
       <section class="hero">
-        <!-- LOGO: swap assets/logo.svg for the real logo image -->
-        <img class="logo" src="assets/logo.svg?v=4" alt="wubu2">
+        <!-- LOGO: chrome render + live ASCII version (hover to reveal chrome) -->
+        <div class="logo-wrap" id="logo">
+          <img class="logo-img" src="assets/logo.webp?v=6" alt="wubu2" width="1000" height="832">
+          <canvas class="logo-ascii" aria-hidden="true"></canvas>
+        </div>
         <p class="tagline">hyperpop // <em>IDM</em> // electronic</p>
       </section>
 
@@ -67,6 +71,6 @@
     </footer>
   </div>
 
-  <script src="assets/main.js?v=4"></script>
+  <script src="assets/main.js?v=6"></script>
 </body>
 </html>

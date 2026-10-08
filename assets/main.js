@@ -105,22 +105,154 @@
 
   // ---------- boot typing ----------
   const typed = [...document.querySelectorAll("[data-type]")];
-  let delay = 120;
-  typed.forEach((el) => {
-    const text = el.textContent;
-    if (reduce) { el.classList.add("typed"); return; }
-    el.textContent = "";
-    setTimeout(() => {
-      el.classList.add("typed");
-      let i = 0;
-      const step = () => {
-        el.textContent = text.slice(0, ++i);
-        if (i < text.length) setTimeout(step, 14 + Math.random() * 22);
-      };
-      step();
-    }, delay);
-    delay += text.length * 20 + 120;
-  });
+  const texts = typed.map((el) => el.textContent);
+  if (!reduce) typed.forEach((el) => (el.textContent = ""));
+  function startTyping() {
+    let delay = 120;
+    typed.forEach((el, k) => {
+      const text = texts[k];
+      if (reduce) { el.classList.add("typed"); return; }
+      setTimeout(() => {
+        el.classList.add("typed");
+        let i = 0;
+        const step = () => {
+          el.textContent = text.slice(0, ++i);
+          if (i < text.length) setTimeout(step, 14 + Math.random() * 22);
+        };
+        step();
+      }, delay);
+      delay += text.length * 20 + 120;
+    });
+  }
+
+  // ---------- boot screen: types wubu2.exe, plays the logo stinger ----------
+  // Runs once per browser session. The <head> script adds .booting before paint.
+  const root = document.documentElement;
+  if (root.classList.contains("booting")) boot();
+  else startTyping();
+
+  function boot() {
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    const el = document.createElement("div");
+    el.id = "boot";
+    el.innerHTML =
+      '<pre class="boot-term"></pre>' +
+      '<video class="boot-video" muted playsinline preload="auto" poster="assets/loader-poster.jpg">' +
+      '<source src="assets/loader.mp4" type="video/mp4"></video>' +
+      '<button class="boot-skip" type="button">[ skip ]</button>';
+    document.body.appendChild(el);
+    const term = el.querySelector(".boot-term");
+    const video = el.querySelector(".boot-video");
+    let done = false;
+
+    const finish = () => {
+      if (done) return;
+      done = true;
+      try { sessionStorage.setItem("wubu2-booted", "1"); } catch (e) {}
+      el.classList.add("out");
+      root.classList.remove("booting");
+      startTyping();
+      setTimeout(() => el.remove(), 700);
+    };
+    el.querySelector(".boot-skip").addEventListener("click", finish);
+    addEventListener("keydown", (e) => { if (e.key === "Escape") finish(); });
+    setTimeout(finish, 14000); // never trap anyone on the loader
+
+    const line = (html = "") => { term.innerHTML += html + "\n"; };
+    const type = async (prefix, cmd) => {
+      term.innerHTML += prefix;
+      for (const ch of cmd) {
+        if (done) return;
+        term.innerHTML += ch;
+        await wait(55 + Math.random() * 70);
+      }
+      term.innerHTML += "\n";
+    };
+
+    (async () => {
+      line("WUBU2 OS [Version 2.0.26]");
+      line("(c) wubu2. all rights reserved.");
+      line();
+      await wait(350);
+      await type("C:\\Users\\guest&gt; ", "wubu2.exe");
+      await wait(250);
+      const mods = [["bass", "c"], ["compression", "m"], ["synths", "y"]];
+      for (const [name, col] of mods) {
+        if (done) return;
+        line(`loading ${name.padEnd(12, ".")} <b class="ok ${col}">[ OK ]</b>`);
+        await wait(220);
+      }
+      line("launching...");
+      await wait(300);
+      if (done) return;
+      term.classList.add("gone");
+      video.classList.add("on");
+      video.addEventListener("ended", finish);
+      video.addEventListener("error", finish);
+      try { await video.play(); } catch (e) { finish(); }
+    })();
+  }
+
+  // ---------- hero logo: live ASCII render of the chrome logo ----------
+  const wrap = document.getElementById("logo");
+  if (wrap) {
+    const img = wrap.querySelector(".logo-img");
+    const cv = wrap.querySelector(".logo-ascii");
+    const c2 = cv.getContext("2d");
+    const RAMP_L = "@#%&$*+=~-:"; // shadow -> highlight, all visible
+    let grid = [], cw = 6, chH = 9;
+
+    const build = () => {
+      const w = wrap.clientWidth, h = wrap.clientHeight;
+      const d = Math.min(devicePixelRatio || 1, 2);
+      cv.width = w * d; cv.height = h * d;
+      c2.setTransform(d, 0, 0, d, 0, 0);
+      cw = Math.max(5, w / 72); chH = cw * 1.5;
+      const cols = Math.floor(w / cw), rows = Math.floor(h / chH);
+      if (cols < 2 || rows < 2) return requestAnimationFrame(build);
+      const off = document.createElement("canvas");
+      off.width = cols; off.height = rows;
+      const o = off.getContext("2d");
+      o.drawImage(img, 0, 0, cols, rows);
+      const px = o.getImageData(0, 0, cols, rows).data;
+      grid = [];
+      for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+        const i = (y * cols + x) * 4, a = px[i + 3] / 255;
+        if (a < 0.25) continue;
+        const lum = (px[i] * 0.3 + px[i + 1] * 0.59 + px[i + 2] * 0.11) / 255;
+        grid.push({ x, y, lum });
+      }
+      paint();
+    };
+    const paint = () => {
+      c2.clearRect(0, 0, cv.width, cv.height);
+      c2.font = `700 ${Math.round(chH * 0.95)}px "JetBrains Mono", monospace`;
+      c2.textBaseline = "top";
+      const CM = ["#00aeef", "#ec008c", "#d4a800"];
+      for (const g of grid) {
+        let li = Math.min(RAMP_L.length - 1, (g.lum * RAMP_L.length) | 0);
+        if (!reduce && Math.random() < 0.04) li = (Math.random() * (RAMP_L.length - 1)) | 0;
+        const r = Math.random();
+        c2.fillStyle = r < 0.035 ? CM[(r * 1000 | 0) % 3] : "#000";
+        c2.fillText(RAMP_L[li], g.x * cw, g.y * chH);
+      }
+    };
+    const ready = () => { build(); if (!reduce) setInterval(paint, 140); };
+    if (img.complete && img.naturalWidth) ready();
+    else img.addEventListener("load", ready);
+    addEventListener("resize", () => img.naturalWidth && build());
+
+    // hover: a lens that shows the real chrome logo under the cursor
+    wrap.addEventListener("pointermove", (e) => {
+      const b = wrap.getBoundingClientRect();
+      wrap.style.setProperty("--lx", `${e.clientX - b.left}px`);
+      wrap.style.setProperty("--ly", `${e.clientY - b.top}px`);
+      wrap.classList.add("lens");
+    });
+    wrap.addEventListener("pointerleave", () => wrap.classList.remove("lens"));
+    // touch screens: tap flips between ASCII and chrome
+    wrap.addEventListener("click", () => wrap.classList.toggle("chrome"));
+  }
 
   // ---------- newsletter (optional) ----------
   const form = document.querySelector(".news form");

@@ -325,3 +325,90 @@ footer.socials a:hover:nth-child(3n+3) { color: var(--fg); background: var(--y);
   margin: 0 auto 20px;
   border: 1px solid var(--fg);
 }
+
+/* ---------- hero logo: ASCII + chrome lens ---------- */
+.logo-wrap {
+  position: relative;
+  width: min(440px, 80vw);
+  aspect-ratio: 1000 / 832;
+  margin: 0 auto 22px;
+  cursor: none;
+  --lx: -999px; --ly: -999px; --lr: 90px;
+}
+.logo-wrap .logo-img,
+.logo-wrap .logo-ascii {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity .35s;
+}
+.logo-wrap .logo-img { opacity: 0; }
+.logo-wrap.lens .logo-img {
+  opacity: 1;
+  -webkit-mask-image: radial-gradient(circle var(--lr) at var(--lx) var(--ly), #000 96%, transparent 100%);
+          mask-image: radial-gradient(circle var(--lr) at var(--lx) var(--ly), #000 96%, transparent 100%);
+}
+.logo-wrap.lens .logo-ascii {
+  -webkit-mask-image: radial-gradient(circle var(--lr) at var(--lx) var(--ly), transparent 96%, #000 100%);
+          mask-image: radial-gradient(circle var(--lr) at var(--lx) var(--ly), transparent 96%, #000 100%);
+}
+.logo-wrap.chrome .logo-img { opacity: 1; -webkit-mask-image: none; mask-image: none; }
+.logo-wrap.chrome .logo-ascii { opacity: 0; }
+
+/* ---------- boot screen ---------- */
+html.booting body { overflow: hidden; }
+html.booting .ui, html.booting .hud, html.booting #field { opacity: 0; }
+.ui, .hud, #field { transition: opacity .6s; }
+
+#boot {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  transition: opacity .5s, filter .5s;
+}
+#boot.out { opacity: 0; filter: blur(6px); pointer-events: none; }
+.boot-term {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(560px, calc(100vw - 32px));
+  font: 14px/1.7 var(--mono);
+  color: #000;
+  white-space: pre-wrap;
+  transition: opacity .25s;
+}
+.boot-term::after {
+  content: "";
+  display: inline-block;
+  width: .6em; height: 1.1em;
+  background: #000;
+  vertical-align: text-bottom;
+  animation: blink 1s steps(1) infinite;
+}
+.boot-term.gone { opacity: 0; }
+.boot-term .ok { font-weight: 700; padding: 0 2px; color: #000; }
+.boot-term .ok.c { background: var(--c); }
+.boot-term .ok.m { background: var(--m); color: #fff; }
+.boot-term .ok.y { background: var(--y); }
+.boot-video {
+  width: min(100vw, 177.78vh);
+  height: auto;
+  opacity: 0;
+  transition: opacity .3s;
+}
+.boot-video.on { opacity: 1; }
+.boot-skip {
+  position: absolute;
+  right: 16px; bottom: 16px;
+  background: none;
+  border: 0;
+  font: 12px var(--mono);
+  letter-spacing: .12em;
+  color: var(--dim);
+  cursor: pointer;
+}
+.boot-skip:hover { color: #000; background: var(--y); }
