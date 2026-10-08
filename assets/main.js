@@ -6,7 +6,7 @@
   const canvas = document.getElementById("field");
   const ctx = canvas.getContext("2d");
   const RAMP = " .,:;-=+*#%@";
-  const CMYK = ["#00e5ff", "#ff1f8f", "#ffe600"];
+  const CMYK = ["#00aeef", "#ec008c", "#f5c400"];
   const CELL = 14;
   let cols, rows, dpr;
 
@@ -47,7 +47,7 @@
 
   function draw(t) {
     const w = canvas.clientWidth, h = canvas.clientHeight;
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, w, h);
     const lx = (px - mx * 28) / CELL, ly = (py - my * 28) / CELL;
     for (let y = 0; y < rows; y++) {
@@ -65,7 +65,7 @@
         if (glow > 0.25 && r > 0.55) ctx.fillStyle = CMYK[(r * 30 | 0) % 3];
         else if (r > 0.996 && v > 0.45) ctx.fillStyle = CMYK[(x + y) % 3];
         else {
-          const g = 50 + v * 130 + glow * 120;
+          const g = 235 - v * 120 - glow * 150;
           ctx.fillStyle = `rgb(${g},${g},${g})`;
         }
         ctx.fillText(ch, x * CELL, y * CELL);
