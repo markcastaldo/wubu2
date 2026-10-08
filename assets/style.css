@@ -2,14 +2,14 @@
    terminalcore // monochrome + CMYK pops
    ========================================================== */
 :root {
-  --bg: #0a0a0a;
-  --fg: #e8e8e8;
-  --dim: #6b6b6b;
-  --faint: #2a2a2a;
+  --bg: #000000;
+  --fg: #ffffff;
+  --dim: #b0b0b0;
+  --faint: #ffffff40;
   --c: #00e5ff;  /* cyan    */
   --m: #ff1f8f;  /* magenta */
   --y: #ffe600;  /* yellow  */
-  --k: #0a0a0a;  /* key     */
+  --k: #000000;  /* key     */
   --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
   --dot: "Doto", "JetBrains Mono", monospace;
 }
@@ -114,7 +114,7 @@ main {
 /* ---------- terminal window ---------- */
 .win {
   border: 1px solid var(--faint);
-  background: rgba(10,10,10,.82);
+  background: rgba(0,0,0,.85);
   backdrop-filter: blur(2px);
   margin-bottom: 28px;
 }

@@ -47,7 +47,7 @@
 
   function draw(t) {
     const w = canvas.clientWidth, h = canvas.clientHeight;
-    ctx.fillStyle = "#0a0a0a";
+    ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, w, h);
     const lx = (px - mx * 28) / CELL, ly = (py - my * 28) / CELL;
     for (let y = 0; y < rows; y++) {
@@ -65,7 +65,7 @@
         if (glow > 0.25 && r > 0.55) ctx.fillStyle = CMYK[(r * 30 | 0) % 3];
         else if (r > 0.996 && v > 0.45) ctx.fillStyle = CMYK[(x + y) % 3];
         else {
-          const g = 40 + v * 90 + glow * 120;
+          const g = 50 + v * 130 + glow * 120;
           ctx.fillStyle = `rgb(${g},${g},${g})`;
         }
         ctx.fillText(ch, x * CELL, y * CELL);
