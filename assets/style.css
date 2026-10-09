@@ -102,6 +102,7 @@ nav.top a::after  { content: " ]"; }
 nav.top a:hover { color: var(--bg); background: var(--fg); }
 nav.top a[aria-current="page"] { color: var(--fg); }
 nav.top a[aria-current="page"]::before { content: "[*"; color: var(--m); }
+nav.top a[aria-current="page"]:hover { color: var(--bg); }
 
 main {
   flex: 1;
