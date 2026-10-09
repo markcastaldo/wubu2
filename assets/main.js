@@ -233,7 +233,7 @@
     const cv = wrap.querySelector(".logo-ascii");
     const c2 = cv.getContext("2d");
     const RAMP_L = "@#%&$*+=~-:"; // shadow -> highlight, all visible
-    let grid = [], cw = 6, chH = 9, lens = null, lensQueued = false, reveal = null;
+    let grid = [], cols = 0, rows = 0, noise = null, cw = 6, chH = 9, lens = null, lensQueued = false, reveal = null;
     const LENS_R = 100;
 
     const build = () => {
@@ -242,7 +242,7 @@
       cv.width = w * d; cv.height = h * d;
       c2.setTransform(d, 0, 0, d, 0, 0);
       cw = Math.max(5, w / 72); chH = cw * 1.5;
-      const cols = Math.floor(w / cw), rows = Math.floor(h / chH);
+      cols = Math.floor(w / cw); rows = Math.floor(h / chH);
       if (cols < 2 || rows < 2) return requestAnimationFrame(build);
       const off = document.createElement("canvas");
       off.width = cols; off.height = rows;
@@ -250,11 +250,13 @@
       o.drawImage(img, 0, 0, cols, rows);
       const px = o.getImageData(0, 0, cols, rows).data;
       grid = [];
+      // fixed per-position noise (covers the whole box, not just the logo) for ragged edges
+      noise = new Float32Array(cols * rows).map(() => Math.random());
       for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
         const i = (y * cols + x) * 4, a = px[i + 3] / 255;
         if (a < 0.25) continue;
         const lum = (px[i] * 0.3 + px[i + 1] * 0.59 + px[i + 2] * 0.11) / 255;
-        grid.push({ x, y, lum, n: Math.random() }); // n: fixed per-cell noise for ragged edges
+        grid.push({ x, y, lum });
       }
       paint();
     };
@@ -272,7 +274,6 @@
         full = R > Math.hypot(w, h) + EDGE;
         if (full && reveal.toChrome) { c2.drawImage(img, 0, 0, w, h); return; }
       }
-      const sx = img.naturalWidth / w, sy = img.naturalHeight / h;
       c2.font = `700 ${Math.round(chH * 0.95)}px "JetBrains Mono", monospace`;
       c2.textBaseline = "top";
       const CM = ["#00aeef", "#ec008c", "#d4a800"];
@@ -282,30 +283,50 @@
         return d < rad - EDGE || (d < rad && noise > (d - (rad - EDGE)) / EDGE);
       };
 
+      // which grid positions currently show chrome (behind the reveal ring and/or under the lens)
+      const isChrome = (x, y) => {
+        const cx = x * cw + cw / 2, cy = y * chH + chH / 2, n = noise[y * cols + x];
+        let on = false;
+        if (reveal && !full) {
+          const inR = R > 0 && inside(cx, cy, reveal.x, reveal.y, R, n);
+          on = reveal.toChrome ? inR : !inR;
+        }
+        if (!on && lens && !(reveal && reveal.toChrome)) on = inside(cx, cy, lens.x, lens.y, LENS_R, n);
+        return on;
+      };
+
+      // ASCII characters, skipping any position that has flipped to chrome
       for (const g of grid) {
-        const x0 = g.x * cw, y0 = g.y * chH, cx = x0 + cw / 2, cy = y0 + chH / 2;
+        const x0 = g.x * cw, y0 = g.y * chH;
         const band = b ? waveBand(b.left + x0, b.top + y0, now) : -1;
         if (band >= 0) { // CMYK ring passing through
           c2.fillStyle = WAVE_INK[band];
           c2.fillText("@", x0, y0);
           continue;
         }
-        let chrome = false;
-        if (reveal && !full) {
-          const inR = R > 0 && inside(cx, cy, reveal.x, reveal.y, R, g.n);
-          chrome = reveal.toChrome ? inR : !inR;
-        }
-        if (!chrome && lens && !(reveal && reveal.toChrome)) chrome = inside(cx, cy, lens.x, lens.y, LENS_R, g.n);
-        if (chrome) {
-          // this character becomes a tile of the chrome render
-          c2.drawImage(img, x0 * sx, y0 * sy, cw * sx, chH * sy, x0, y0, cw + 0.5, chH + 0.5);
-          continue;
-        }
+        if ((reveal && !full) || lens ? isChrome(g.x, g.y) : false) continue;
         let li = Math.min(RAMP_L.length - 1, (g.lum * RAMP_L.length) | 0);
         if (!reduce && Math.random() < 0.04) li = (Math.random() * (RAMP_L.length - 1)) | 0;
         const r = Math.random();
         c2.fillStyle = r < 0.035 ? CM[(r * 1000 | 0) % 3] : "#000";
         c2.fillText(RAMP_L[li], x0, y0);
+      }
+
+      // chrome: one smooth image drawn through the flipped positions, so the logo's own
+      // outline stays clean and only the moving edge is ragged (no pop when it completes)
+      if ((reveal && !full) || lens) {
+        c2.save();
+        c2.beginPath();
+        let any = false;
+        for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+          if (!isChrome(x, y)) continue;
+          any = true;
+          const x0 = x * cw, y0 = y * chH;
+          // last column/row stretch to the edge so nothing is left uncovered
+          c2.rect(x0, y0, x === cols - 1 ? w - x0 : cw, y === rows - 1 ? h - y0 : chH);
+        }
+        if (any) { c2.clip(); c2.drawImage(img, 0, 0, w, h); }
+        c2.restore();
       }
     };
     paintLogo = paint;
