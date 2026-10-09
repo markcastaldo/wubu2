@@ -234,7 +234,7 @@
     const c2 = cv.getContext("2d");
     const RAMP_L = "@#%&$*+=~-:"; // shadow -> highlight, all visible
     let grid = [], cw = 6, chH = 9, lens = null, lensQueued = false, reveal = null;
-    const LENS_R = 90;
+    const LENS_R = 100;
 
     const build = () => {
       const w = wrap.clientWidth, h = wrap.clientHeight;
@@ -254,52 +254,58 @@
         const i = (y * cols + x) * 4, a = px[i + 3] / 255;
         if (a < 0.25) continue;
         const lum = (px[i] * 0.3 + px[i + 1] * 0.59 + px[i + 2] * 0.11) / 255;
-        grid.push({ x, y, lum });
+        grid.push({ x, y, lum, n: Math.random() }); // n: fixed per-cell noise for ragged edges
       }
       paint();
     };
+    const EDGE = 26; // px of ragged, character-by-character edge on lens + reveal
     const paint = (now) => {
       const b = waves.length ? wrap.getBoundingClientRect() : null;
       now = now || performance.now();
-      c2.clearRect(0, 0, cv.width, cv.height);
+      const w = wrap.clientWidth, h = wrap.clientHeight;
+      c2.clearRect(0, 0, w, h);
+
+      // click reveal: radius of the area that has flipped (just behind the black band)
+      let R = -1, full = false;
+      if (reveal) {
+        R = (now - reveal.t0) / 1000 * WAVE_SPEED - BAND * 4;
+        full = R > Math.hypot(w, h) + EDGE;
+        if (full && reveal.toChrome) { c2.drawImage(img, 0, 0, w, h); return; }
+      }
+      const sx = img.naturalWidth / w, sy = img.naturalHeight / h;
       c2.font = `700 ${Math.round(chH * 0.95)}px "JetBrains Mono", monospace`;
       c2.textBaseline = "top";
       const CM = ["#00aeef", "#ec008c", "#d4a800"];
+      // a cell is "inside" a circle if it's well within it, or near the rim and its noise says so
+      const inside = (cx, cy, ox, oy, rad, noise) => {
+        const d = Math.hypot(cx - ox, cy - oy);
+        return d < rad - EDGE || (d < rad && noise > (d - (rad - EDGE)) / EDGE);
+      };
+
       for (const g of grid) {
+        const x0 = g.x * cw, y0 = g.y * chH, cx = x0 + cw / 2, cy = y0 + chH / 2;
+        const band = b ? waveBand(b.left + x0, b.top + y0, now) : -1;
+        if (band >= 0) { // CMYK ring passing through
+          c2.fillStyle = WAVE_INK[band];
+          c2.fillText("@", x0, y0);
+          continue;
+        }
+        let chrome = false;
+        if (reveal && !full) {
+          const inR = R > 0 && inside(cx, cy, reveal.x, reveal.y, R, g.n);
+          chrome = reveal.toChrome ? inR : !inR;
+        }
+        if (!chrome && lens && !(reveal && reveal.toChrome)) chrome = inside(cx, cy, lens.x, lens.y, LENS_R, g.n);
+        if (chrome) {
+          // this character becomes a tile of the chrome render
+          c2.drawImage(img, x0 * sx, y0 * sy, cw * sx, chH * sy, x0, y0, cw + 0.5, chH + 0.5);
+          continue;
+        }
         let li = Math.min(RAMP_L.length - 1, (g.lum * RAMP_L.length) | 0);
         if (!reduce && Math.random() < 0.04) li = (Math.random() * (RAMP_L.length - 1)) | 0;
         const r = Math.random();
-        const band = b ? waveBand(b.left + g.x * cw, b.top + g.y * chH, now) : -1;
-        c2.fillStyle = band >= 0 ? WAVE_INK[band] : r < 0.035 ? CM[(r * 1000 | 0) % 3] : "#000";
-        c2.fillText(band >= 0 ? "@" : RAMP_L[li], g.x * cw, g.y * chH);
-      }
-      const w = wrap.clientWidth, h = wrap.clientHeight;
-      const chromeAll = () => { c2.clearRect(0, 0, w, h); c2.drawImage(img, 0, 0, w, h); };
-      // click reveal: the logo flips between ASCII and chrome behind the CMYK ring
-      if (reveal) {
-        const R = (now - reveal.t0) / 1000 * WAVE_SPEED - BAND * 4; // just behind the black band
-        const full = R > Math.hypot(w, h) + 10;
-        if (reveal.toChrome) {
-          if (full) { chromeAll(); return; }
-          if (R > 0) {
-            c2.save(); c2.beginPath(); c2.arc(reveal.x, reveal.y, R, 0, Math.PI * 2); c2.clip();
-            chromeAll(); c2.restore();
-          }
-          return;
-        }
-        if (!full) {
-          // going back to ASCII: chrome stays outside the growing circle
-          c2.save(); c2.beginPath(); c2.rect(0, 0, w, h);
-          if (R > 0) c2.arc(reveal.x, reveal.y, R, 0, Math.PI * 2, true);
-          c2.clip(); chromeAll(); c2.restore();
-          return;
-        }
-      }
-      // hover lens (ASCII state only): punch a circle out and draw chrome inside it.
-      // Drawn on the canvas (not a CSS mask) so it renders the same in every browser.
-      if (lens) {
-        c2.save(); c2.beginPath(); c2.arc(lens.x, lens.y, LENS_R, 0, Math.PI * 2); c2.clip();
-        chromeAll(); c2.restore();
+        c2.fillStyle = r < 0.035 ? CM[(r * 1000 | 0) % 3] : "#000";
+        c2.fillText(RAMP_L[li], x0, y0);
       }
     };
     paintLogo = paint;
