@@ -232,7 +232,7 @@
     const cv = wrap.querySelector(".logo-ascii");
     const c2 = cv.getContext("2d");
     const RAMP_L = "@#%&$*+=~-:"; // shadow -> highlight, all visible
-    let grid = [], cw = 6, chH = 9, lens = null, lensQueued = false;
+    let grid = [], cw = 6, chH = 9, lens = null, lensQueued = false, reveal = null;
     const LENS_R = 90;
 
     const build = () => {
@@ -272,17 +272,33 @@
         c2.fillStyle = band >= 0 ? WAVE_INK[band] : r < 0.035 ? CM[(r * 1000 | 0) % 3] : "#000";
         c2.fillText(band >= 0 ? "@" : RAMP_L[li], g.x * cw, g.y * chH);
       }
-      // lens: punch a circle out of the ASCII and draw the chrome logo inside it.
+      const w = wrap.clientWidth, h = wrap.clientHeight;
+      const chromeAll = () => { c2.clearRect(0, 0, w, h); c2.drawImage(img, 0, 0, w, h); };
+      // click reveal: the logo flips between ASCII and chrome behind the CMYK ring
+      if (reveal) {
+        const R = (now - reveal.t0) / 1000 * WAVE_SPEED - BAND * 4; // just behind the black band
+        const full = R > Math.hypot(w, h) + 10;
+        if (reveal.toChrome) {
+          if (full) { chromeAll(); return; }
+          if (R > 0) {
+            c2.save(); c2.beginPath(); c2.arc(reveal.x, reveal.y, R, 0, Math.PI * 2); c2.clip();
+            chromeAll(); c2.restore();
+          }
+          return;
+        }
+        if (!full) {
+          // going back to ASCII: chrome stays outside the growing circle
+          c2.save(); c2.beginPath(); c2.rect(0, 0, w, h);
+          if (R > 0) c2.arc(reveal.x, reveal.y, R, 0, Math.PI * 2, true);
+          c2.clip(); chromeAll(); c2.restore();
+          return;
+        }
+      }
+      // hover lens (ASCII state only): punch a circle out and draw chrome inside it.
       // Drawn on the canvas (not a CSS mask) so it renders the same in every browser.
       if (lens) {
-        const w = wrap.clientWidth, h = wrap.clientHeight;
-        c2.save();
-        c2.beginPath();
-        c2.arc(lens.x, lens.y, LENS_R, 0, Math.PI * 2);
-        c2.clip();
-        c2.clearRect(0, 0, w, h);
-        c2.drawImage(img, 0, 0, w, h);
-        c2.restore();
+        c2.save(); c2.beginPath(); c2.arc(lens.x, lens.y, LENS_R, 0, Math.PI * 2); c2.clip();
+        chromeAll(); c2.restore();
       }
     };
     paintLogo = paint;
@@ -298,20 +314,24 @@
       requestAnimationFrame(() => { lensQueued = false; paint(); });
     };
     wrap.addEventListener("pointermove", (e) => {
+      if (e.pointerType !== "mouse") return;
       const b = wrap.getBoundingClientRect();
       lens = { x: e.clientX - b.left, y: e.clientY - b.top };
       repaintSoon();
     });
     wrap.addEventListener("pointerleave", () => { lens = null; repaintSoon(); });
-    // click / tap: send a CMYK wave out across the page
+    // click / tap: send a CMYK wave out across the page; the logo flips to chrome
+    // behind it, and the next click flips it back to ASCII
     wrap.addEventListener("pointerdown", (e) => {
       const b = wrap.getBoundingClientRect();
-      lens = { x: e.clientX - b.left, y: e.clientY - b.top };
+      const x = e.clientX - b.left, y = e.clientY - b.top, t0 = performance.now();
+      const toChrome = !(reveal && reveal.toChrome);
+      reveal = { x, y, t0: reduce ? -1e9 : t0, toChrome };
+      lens = null;
       repaintSoon();
-      if (e.pointerType !== "mouse") setTimeout(() => { lens = null; repaintSoon(); }, 900);
       if (reduce) return;
       if (waves.length > 4) waves.shift();
-      waves.push({ x: e.clientX, y: e.clientY, t0: performance.now() });
+      waves.push({ x: e.clientX, y: e.clientY, t0 });
     });
   }
 
