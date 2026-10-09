@@ -91,7 +91,7 @@
         if (glow > 0.25 && r > 0.55) ctx.fillStyle = CMYK[(r * 30 | 0) % 3];
         else if (r > 0.996 && v > 0.45) ctx.fillStyle = CMYK[(x + y) % 3];
         else {
-          const g = 235 - v * 120 - glow * 150;
+          const g = 242 - v * 95 - glow * 150; // kept light so foreground text stays readable
           ctx.fillStyle = `rgb(${g},${g},${g})`;
         }
         ctx.fillText(ch, x * CELL, y * CELL);

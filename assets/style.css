@@ -4,7 +4,7 @@
 :root {
   --bg: #ffffff;
   --fg: #000000;
-  --dim: #6a6a6a;
+  --dim: #3f3f3f;
   --faint: #00000030;
   --c: #00aeef;  /* cyan    */
   --m: #ec008c;  /* magenta */
@@ -114,7 +114,7 @@ main {
 /* ---------- terminal window ---------- */
 .win {
   border: 1px solid var(--faint);
-  background: rgba(255,255,255,.88);
+  background: rgba(255,255,255,.96);
   backdrop-filter: blur(2px);
   margin-bottom: 28px;
 }
@@ -400,3 +400,10 @@ html.booting .ui, html.booting .hud, html.booting #field { opacity: 0; }
   cursor: pointer;
 }
 .boot-skip:hover { color: #000; background: var(--y); }
+
+/* readability: text that sits directly on the ASCII field gets a white halo */
+nav.top a, .tagline, main > .prompt, main > h1, .hud, footer.socials a {
+  text-shadow: 0 0 3px #fff, 0 0 6px #fff, 0 0 10px #fff;
+}
+nav.top a, footer.socials a { background: rgba(255,255,255,.85); }
+nav.top a:hover { text-shadow: none; }
