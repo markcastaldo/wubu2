@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Doto:wght@800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=14">
+  <link rel="stylesheet" href="assets/style.css?v=15">
   <link rel="icon" href="assets/icon.png">
   <script>try{if(!sessionStorage.getItem("wubu2-booted")&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("booting")}catch(e){}</script>
 </head>
@@ -39,46 +39,60 @@
       <h1 data-type>FREE_STUFF</h1>
       <p class="prompt" style="margin-bottom:28px">no email, no sign-up. just download.</p>
 
-      <section class="win">
-        <div class="win-bar"><span>~/packs/index</span><span class="dots"><i></i><i></i><i></i></span></div>
+      <!-- PACKS: one <section class="win pack"> per pack, newest first.
+           Zips live on GitHub Releases (github.com/markcastaldo/wubu2/releases), not in the repo. -->
+      <section class="win pack" id="unvaulting">
+        <div class="win-bar"><span>~/packs/001_unvaulting</span><span class="dots"><i></i><i></i><i></i></span></div>
         <div class="win-body">
-          <!-- PACKS: one <tr> per pack. Put zips in a /packs folder (under 100MB each)
-               or link to Google Drive / Dropbox. Tag colours: c, m, y -->
-          <table class="packs">
-            <thead>
-              <tr><th>#</th><th>Pack</th><th class="hide-sm">Type</th><th class="hide-sm">Size</th><th></th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="id">001</td>
-                <td>Static Drums Vol.1<span class="desc">48 one-shots, crunchy and bitcrushed</span></td>
-                <td class="hide-sm"><span class="tag c">DRUMS</span></td>
-                <td class="hide-sm">42MB</td>
-                <td><a class="dl" href="#">GET</a></td>
-              </tr>
-              <tr>
-                <td class="id">002</td>
-                <td>Phosphor Pads<span class="desc">Serum presets, 24 patches</span></td>
-                <td class="hide-sm"><span class="tag m">PRESETS</span></td>
-                <td class="hide-sm">3MB</td>
-                <td><a class="dl" href="#">GET</a></td>
-              </tr>
-              <tr>
-                <td class="id">003</td>
-                <td>CRT Textures<span class="desc">field recordings, hum, noise beds</span></td>
-                <td class="hide-sm"><span class="tag y">FX</span></td>
-                <td class="hide-sm">110MB</td>
-                <td><a class="dl" href="#">GET</a></td>
-              </tr>
-              <tr>
-                <td class="id">004</td>
-                <td>Track Stems: Untitled<span class="desc">full stems for remixing</span></td>
-                <td class="hide-sm"><span class="tag c">STEMS</span></td>
-                <td class="hide-sm">260MB</td>
-                <td><a class="dl" href="#">GET</a></td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="pack-grid">
+            <img class="pack-cover" src="assets/unvaulting.webp?v=15" alt="UNVAULTING: Serum 2 preset pack cover" width="800" height="800" loading="lazy">
+            <div class="pack-info">
+              <p class="pack-id">001</p>
+              <h2>UNVAULTING</h2>
+              <p class="pack-meta">serum 2 // 27 presets // 9.0MB</p>
+              <p class="pack-tags">
+                <span class="tag c">11 BASS</span>
+                <span class="tag m">8 LEADS</span>
+                <span class="tag y">3 CHORDS</span>
+                <span class="tag c">3 PLUCKS</span>
+                <span class="tag m">2 PADS</span>
+              </p>
+              <a class="dl dl-big" href="https://github.com/markcastaldo/wubu2/releases/download/unvaulting/UNVAULTING.zip" download>./unvault</a>
+              <p class="pack-note">needs Serum 2. unzip, then drop the folder into your Serum presets folder.</p>
+            </div>
+          </div>
+          <details class="pack-ls">
+            <summary><span class="prompt">ls UNVAULTING/</span></summary>
+            <ul>
+                <li>808 - IGNORANT.SerumPreset</li>
+                <li>BASS - ANDROID PR0N.SerumPreset</li>
+                <li>BASS - ANGY.SerumPreset</li>
+                <li>BASS - BUFFER.SerumPreset</li>
+                <li>BASS - CRUNCHY WOBBLER.SerumPreset</li>
+                <li>BASS - GRIT.SerumPreset</li>
+                <li>BASS - LAWN.SerumPreset</li>
+                <li>BASS - SIDECHAINME.SerumPreset</li>
+                <li>BASS PLUCK - WHUMMER.SerumPreset</li>
+                <li>BASS PLUCK - XTREME KORG.SerumPreset</li>
+                <li>CHORD - NOISE KEYS.SerumPreset</li>
+                <li>CHORDS - IDK.SerumPreset</li>
+                <li>CHORDS - LOFI.SerumPreset</li>
+                <li>LEAD - 2013.SerumPreset</li>
+                <li>LEAD - LETS SLIDE.SerumPreset</li>
+                <li>LEAD - NIGHTCITY.SerumPreset</li>
+                <li>LEAD - RICO.SerumPreset</li>
+                <li>LEAD - SLEUTH.SerumPreset</li>
+                <li>LEAD - SLOWRISER.SerumPreset</li>
+                <li>LEAD - WAKEUP.SerumPreset</li>
+                <li>LEAD - WOKEN.SerumPreset</li>
+                <li>PAD - ASMR TINGLES.SerumPreset</li>
+                <li>PAD - BROADCAST.SerumPreset</li>
+                <li>PLUCK - ISLAND.SerumPreset</li>
+                <li>PLUCK - SAD.SerumPreset</li>
+                <li>PLUCK - ZIPPER.SerumPreset</li>
+                <li>REESE - CLASSIC.SerumPreset</li>
+            </ul>
+          </details>
         </div>
       </section>
 
@@ -104,6 +118,6 @@
     </footer>
   </div>
 
-  <script src="assets/main.js?v=14"></script>
+  <script src="assets/main.js?v=15"></script>
 </body>
 </html>

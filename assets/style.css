@@ -408,3 +408,23 @@ nav.top a, .tagline, main > .prompt, main > h1, .hud, footer.socials a {
 }
 nav.top a, footer.socials a { background: rgba(255,255,255,.85); }
 nav.top a:hover { text-shadow: none; }
+
+/* ---------- pack cards ---------- */
+.pack-grid { display: grid; grid-template-columns: minmax(0, 260px) 1fr; gap: 24px; align-items: start; }
+.pack-cover { width: 100%; height: auto; display: block; border: 1px solid var(--fg); }
+.pack-id { color: var(--dim); font-size: 11px; letter-spacing: .1em; margin-bottom: 6px; }
+.pack-info h2 { font-size: clamp(28px, 6vw, 38px); margin-bottom: 8px; }
+.pack-meta { color: var(--dim); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 12px; }
+.pack-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+.pack-tags .tag { display: inline-block; font-size: 10px; padding: 1px 6px; letter-spacing: .08em; color: var(--k); }
+.pack-tags .tag.m { color: #fff; }
+.dl-big { display: inline-block; font-size: 14px; padding: 8px 18px; letter-spacing: .06em; }
+.pack-note { margin-top: 12px; font-size: 12px; color: var(--dim); }
+.pack-ls { margin-top: 20px; border-top: 1px dashed var(--faint); padding-top: 14px; }
+.pack-ls summary { cursor: pointer; list-style: none; font-size: 13px; }
+.pack-ls summary::-webkit-details-marker { display: none; }
+.pack-ls summary::after { content: " [+]"; color: var(--dim); }
+.pack-ls[open] summary::after { content: " [-]"; }
+.pack-ls ul { list-style: none; columns: 2 220px; column-gap: 24px; margin-top: 10px; font-size: 12px; }
+.pack-ls li { padding: 2px 0; break-inside: avoid; }
+@media (max-width: 560px) { .pack-grid { grid-template-columns: 1fr; } }
