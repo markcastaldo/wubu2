@@ -221,7 +221,7 @@
       video.classList.add("on");
       video.addEventListener("ended", finish);
       video.addEventListener("error", finish);
-      video.defaultPlaybackRate = video.playbackRate = 1.5; // stinger runs 5s; 1.5x feels snappier
+      video.defaultPlaybackRate = video.playbackRate = 1.875; // stinger runs 5s; 1.875x (1.5x + 25%) feels snappier
       try { await video.play(); } catch (e) { finish(); }
     })();
   }
