@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>wubu2 // privacy</title>
+  <meta name="description" content="What wubu2.me does with your data: the newsletter, and nothing else.">
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Doto:wght@800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css?v=19">
+  <link rel="icon" href="assets/icon.png">
+  <script>try{if(!sessionStorage.getItem("wubu2-booted")&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("booting")}catch(e){}</script>
+</head>
+<body>
+  <canvas id="field" aria-hidden="true"></canvas>
+
+  <div class="hud" aria-hidden="true">
+    <span class="tl">SYS://WUBU2/privacy</span>
+    <span class="tr" id="hud-xy">X<b>0000</b> Y<b>0000</b></span>
+    <span class="bl">C M Y K</span>
+    <span class="br" id="hud-clock"></span>
+  </div>
+
+  <div class="ui">
+    <nav class="top">
+      <a href="index.html#listen">Listen</a>
+      <a href="free.html">Free stuff</a>
+      <a href="about.html">About</a>
+    </nav>
+
+    <main>
+      <h1 data-type>PRIVACY</h1>
+      <p class="prompt" style="margin-bottom:28px">cat privacy.txt // updated 13 Oct 2026</p>
+
+      <section class="win bio">
+        <div class="win-bar"><span>~/privacy.txt</span><span class="dots"><i></i><i></i><i></i></span></div>
+        <div class="win-body">
+          <p><b>short version:</b> the only personal data this site collects is your email address, and only if you sign up for the newsletter. it's used for one thing: telling you when new free packs and releases drop. no ads, no analytics, no tracking, never sold or shared.</p>
+
+          <h2>who we are</h2>
+          <p>wubu2, an electronic music project based in the United Kingdom. we're the data controller for the newsletter. contact: <a href="mailto:wubu2music@duck.com">wubu2music@duck.com</a></p>
+
+          <h2>the newsletter</h2>
+          <dl class="kv" style="margin-bottom:14px">
+            <dt>what</dt><dd>your email address, when you signed up, when you confirmed, and the wording you agreed to (so we can show you gave consent)</dd>
+            <dt>why</dt><dd>to email you about new wubu2 free packs and releases. nothing else</dd>
+            <dt>legal basis</dt><dd>your consent (UK GDPR art. 6(1)(a)). you sign up, then confirm by clicking a link in an email. nobody is added without that click</dd>
+            <dt>where</dt><dd>a private Google Sheet in wubu2's Google account. emails are sent with Gmail. Google may store data outside the UK (e.g. the US) under its own data protection safeguards</dd>
+            <dt>how long</dt><dd>until you unsubscribe. then your address is deleted from the list. sign-ups that are never confirmed are deleted after 30 days</dd>
+            <dt>tracking</dt><dd>none. no open tracking, no click tracking, no pixels</dd>
+          </dl>
+          <p>to leave: click unsubscribe at the bottom of any email, or use the unsubscribe button your mail app shows next to the sender. one click, done.</p>
+
+          <h2>your rights</h2>
+          <p>you can ask what we hold about you, ask us to fix or delete it, or withdraw your consent at any time. email <a href="mailto:wubu2music@duck.com">wubu2music@duck.com</a> and we'll sort it within a month. if you're not happy with how we handle your data, you can complain to the Information Commissioner's Office: <a href="https://ico.org.uk/make-a-complaint/" target="_blank" rel="noopener">ico.org.uk</a></p>
+
+          <h2>the website</h2>
+          <p>no cookies of our own, no analytics. your browser keeps one temporary note (in session storage, never sent anywhere) so the intro animation only plays once per visit. the site is hosted on GitHub Pages, which logs IP addresses for security. fonts load from Google Fonts. the Spotify player on the home page comes from Spotify and follows Spotify's privacy policy. free pack downloads come from GitHub.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="socials">
+      <a href="https://www.instagram.com/_wubu2/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.youtube.com/@wubu2" target="_blank" rel="noopener">YouTube</a>
+      <a href="https://wubu2.bandcamp.com/" target="_blank" rel="noopener">Bandcamp</a>
+      <a href="https://soundcloud.com/wubu2" target="_blank" rel="noopener">SoundCloud</a>
+    </footer>
+  </div>
+
+  <script src="assets/main.js?v=19"></script>
+</body>
+</html>
