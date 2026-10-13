@@ -382,7 +382,7 @@
         const res = await fetch(url, { method: "POST", body: new URLSearchParams(new FormData(form)) });
         const out = await res.json();
         if (out.ok) {
-          status.textContent = "> check your inbox and click confirm to get on the list.";
+          status.textContent = "> check your inbox (and spam) and click confirm to get on the list.";
           form.reset();
         } else {
           status.textContent = out.error === "bad_email" ? "> that email doesn't look right."
