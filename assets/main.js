@@ -382,10 +382,12 @@
         const res = await fetch(url, { method: "POST", body: new URLSearchParams(new FormData(form)) });
         const out = await res.json();
         if (out.ok) {
-          status.textContent = out.already ? "> you're already on the list." : "> you're on the list. new packs land in your inbox.";
+          status.textContent = "> check your inbox and click confirm to get on the list.";
           form.reset();
         } else {
-          status.textContent = out.error === "bad_email" ? "> that email doesn't look right." : "> couldn't sign you up. try again later.";
+          status.textContent = out.error === "bad_email" ? "> that email doesn't look right."
+            : out.error === "busy" ? "> lots of sign-ups right now. try again in an hour."
+            : "> couldn't sign you up. try again later.";
         }
       } catch (err) {
         status.textContent = "> couldn't reach the list. try again later.";
