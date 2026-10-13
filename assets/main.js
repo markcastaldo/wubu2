@@ -366,13 +366,31 @@
   // ---------- newsletter (optional) ----------
   const form = document.querySelector(".news form");
   if (form) {
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
       const status = form.parentElement.querySelector(".status");
+      const btn = form.querySelector("button");
+      const url = form.getAttribute("action");
       // If no real newsletter service is wired up yet, don't pretend.
-      if (!form.getAttribute("action")) {
-        e.preventDefault();
+      if (!url) {
         status.textContent = "> newsletter coming soon. grab the packs, no strings.";
+        return;
       }
+      btn.disabled = true;
+      status.textContent = "> subscribing...";
+      try {
+        const res = await fetch(url, { method: "POST", body: new URLSearchParams(new FormData(form)) });
+        const out = await res.json();
+        if (out.ok) {
+          status.textContent = out.already ? "> you're already on the list." : "> you're on the list. new packs land in your inbox.";
+          form.reset();
+        } else {
+          status.textContent = out.error === "bad_email" ? "> that email doesn't look right." : "> couldn't sign you up. try again later.";
+        }
+      } catch (err) {
+        status.textContent = "> couldn't reach the list. try again later.";
+      }
+      btn.disabled = false;
     });
   }
 })();
