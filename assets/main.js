@@ -10,16 +10,42 @@
   const CELL = 14;
   let cols, rows, dpr;
 
+  // Glyph atlas: every character in every ink is pre-rendered once, then the field
+  // is drawn with drawImage. Thousands of fillText calls per frame were slow in
+  // Safari and Firefox on big Mac screens.
+  const GLYPHS = ".,:;-=+*#%@&$"; // RAMP minus the space, then the extra wave chars
+  const GREYS = 32;               // grey inks quantised in steps of 8
+  const atlas = document.createElement("canvas");
+  const actx = atlas.getContext("2d");
+  let S = CELL; // atlas cell size in device px
+  function buildAtlas() {
+    const inks = [];
+    for (let g = 0; g < GREYS; g++) inks.push(`rgb(${g * 8},${g * 8},${g * 8})`);
+    inks.push(...CMYK, ...WAVE_INK);
+    S = Math.ceil(CELL * dpr);
+    atlas.width = GLYPHS.length * S;
+    atlas.height = inks.length * S;
+    actx.setTransform(S / CELL, 0, 0, S / CELL, 0, 0);
+    actx.font = `12px "JetBrains Mono", monospace`;
+    actx.textBaseline = "top";
+    inks.forEach((ink, r) => {
+      actx.fillStyle = ink;
+      for (let c = 0; c < GLYPHS.length; c++) actx.fillText(GLYPHS[c], c * CELL, r * CELL);
+    });
+  }
+  const ROW_CMYK = GREYS, ROW_WAVE = GREYS + 3;
+  const glyph = (ch, row, x, y) =>
+    ctx.drawImage(atlas, GLYPHS.indexOf(ch) * S, row * S, S, S, x, y, CELL, CELL);
+
   function size() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = canvas.clientWidth, h = canvas.clientHeight;
     canvas.width = w * dpr;
     canvas.height = h * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.font = `12px "JetBrains Mono", monospace`;
-    ctx.textBaseline = "top";
     cols = Math.ceil(w / CELL);
     rows = Math.ceil(h / CELL);
+    buildAtlas();
   }
 
   // cheap layered sine "noise"
@@ -73,8 +99,7 @@
         if (hasWaves) {
           const band = waveBand(x * CELL + ox, y * CELL + oy, now);
           if (band >= 0) {
-            ctx.fillStyle = WAVE_INK[band];
-            ctx.fillText(band === 3 ? "#" : "@%&$"[(x * 7 + y * 3) % 4], x * CELL, y * CELL);
+            glyph(band === 3 ? "#" : "@%&$"[(x * 7 + y * 3) % 4], ROW_WAVE + band, x * CELL, y * CELL);
             continue;
           }
         }
@@ -88,13 +113,14 @@
         // pops of colour: rare cells + near the cursor
         const hash = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
         const r = hash - Math.floor(hash);
-        if (glow > 0.25 && r > 0.55) ctx.fillStyle = CMYK[(r * 30 | 0) % 3];
-        else if (r > 0.996 && v > 0.45) ctx.fillStyle = CMYK[(x + y) % 3];
+        let row;
+        if (glow > 0.25 && r > 0.55) row = ROW_CMYK + (r * 30 | 0) % 3;
+        else if (r > 0.996 && v > 0.45) row = ROW_CMYK + (x + y) % 3;
         else {
           const g = 242 - v * 95 - glow * 150; // kept light so foreground text stays readable
-          ctx.fillStyle = `rgb(${g},${g},${g})`;
+          row = Math.max(0, Math.min(GREYS - 1, Math.round(g / 8)));
         }
-        ctx.fillText(ch, x * CELL, y * CELL);
+        glyph(ch, row, x * CELL, y * CELL);
       }
     }
   }
@@ -104,11 +130,14 @@
   const hud = document.querySelector(".hud");
   let last = 0;
   function frame(now) {
-    mx += (tx - mx) * 0.08;
-    my += (ty - my) * 0.08;
-    canvas.style.transform = `translate3d(${-mx * 28}px, ${-my * 28}px, 0)`;
-    if (hud) hud.style.transform = `translate3d(${-mx * 10}px, ${-my * 10}px, 0)`;
-    if (ui) ui.style.transform = `translate3d(${mx * 10}px, ${my * 10}px, 0)`;
+    // only touch the layers while the parallax is still settling
+    if (Math.abs(tx - mx) + Math.abs(ty - my) > 0.0005) {
+      mx += (tx - mx) * 0.08;
+      my += (ty - my) * 0.08;
+      canvas.style.transform = `translate3d(${-mx * 28}px, ${-my * 28}px, 0)`;
+      if (hud) hud.style.transform = `translate3d(${-mx * 10}px, ${-my * 10}px, 0)`;
+      if (ui) ui.style.transform = `translate3d(${mx * 10}px, ${my * 10}px, 0)`;
+    }
     // drop finished waves
     for (let k = waves.length - 1; k >= 0; k--)
       if ((now - waves[k].t0) / 1000 * WAVE_SPEED > maxR()) waves.splice(k, 1);
@@ -124,6 +153,8 @@
   let paintLogo = null;
   size();
   addEventListener("resize", size);
+  // the atlas may have been drawn with the fallback font; redo it once JetBrains Mono is in
+  if (document.fonts) document.fonts.ready.then(() => { buildAtlas(); if (reduce) draw(0); });
   if (reduce) draw(0);
   else requestAnimationFrame(frame);
 
